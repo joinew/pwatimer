@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="리니지타이머">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>리니지 보스타이머</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- 상단 헤더 -->
+    <div class="header">
+      <div class="header-title">⚔️ 리니지 보스타이머</div>
+      <div id="current-time-display" class="header-time"></div>
+    </div>
+
+    <!-- 탭 -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="boss">⚔️ 보스</button>
+      <button class="tab" data-tab="hunting">🚩 컨텐츠</button>
+    </div>
+
+    <!-- 보스 탭 -->
+    <div id="tab-boss" class="tab-content active">
+      <div id="boss-list" class="item-list"></div>
+    </div>
+
+    <!-- 컨텐츠 탭 -->
+    <div id="tab-hunting" class="tab-content">
+      <div id="hunting-list" class="item-list"></div>
+    </div>
+
+    <!-- 알람 토글 버튼 -->
+    <div class="bottom-bar">
+      <button id="alarm-btn" class="alarm-btn on">🔔 알람 켜짐</button>
+    </div>
+
+  </div>
+
+  <!-- 깜빡임 오버레이 -->
+  <div id="flash-overlay"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
