@@ -242,6 +242,9 @@ function update() {
   } else {
     huntEl.innerHTML = huntings.map((item, i) => buildCard(item, i, WARN_SEC)).join('');
   }
+
+  // 자동사냥 타이머 업데이트
+  if (window._autoHook) window._autoHook();
 }
 
 // ── Service Worker 등록 ───────────────────────────────
@@ -252,3 +255,171 @@ if ('serviceWorker' in navigator) {
 // ── 시작 ──────────────────────────────────────────────
 update();
 setInterval(update, 1000);
+
+// ══════════════════════════════════════════════════════
+// 자동사냥 타이머
+// ══════════════════════════════════════════════════════
+
+// ── 상태 ──────────────────────────────────────────────
+let autoState = 'idle'; // idle | running | done
+let autoStartTime  = null; // 시작 시각 (Date)
+let autoEndTime    = null; // 종료 예정 시각 (Date)
+let autoWarnMin    = 10;   // 경고 시작 분
+let autoWarnFired  = { warn: false, done: false };
+
+// ── 시작 버튼 ─────────────────────────────────────────
+document.getElementById('btn-start').addEventListener('click', () => {
+  const h    = parseInt(document.getElementById('input-hour').value) || 0;
+  const m    = parseInt(document.getElementById('input-min').value)  || 0;
+  const warn = parseInt(document.getElementById('input-warn').value) || 10;
+
+  const totalMin = h * 60 + m;
+  if (totalMin <= 0) {
+    alert('사냥 시간을 입력해 주세요.');
+    return;
+  }
+
+  autoStartTime = new Date();
+  autoEndTime   = new Date(autoStartTime.getTime() + totalMin * 60 * 1000);
+  autoWarnMin   = warn;
+  autoWarnFired = { warn: false, done: false };
+  autoState     = 'running';
+
+  // 시작 시각 / 종료 시각 표시
+  document.getElementById('disp-start').textContent = formatTime(autoStartTime);
+  document.getElementById('disp-end').textContent   = formatTime(autoEndTime);
+  document.getElementById('auto-warn-banner').style.display = 'none';
+
+  showAutoPanel('running');
+  speak('자동사냥을 시작합니다');
+});
+
+// ── 종료 버튼 ─────────────────────────────────────────
+document.getElementById('btn-stop').addEventListener('click', () => {
+  if (!confirm('사냥을 종료하시겠습니까?')) return;
+  finishAuto(true);
+});
+
+// ── 다시 설정 버튼 ────────────────────────────────────
+document.getElementById('btn-reset').addEventListener('click', () => {
+  autoState    = 'idle';
+  autoStartTime = null;
+  autoEndTime   = null;
+  showAutoPanel('idle');
+});
+
+// ── 패널 전환 ─────────────────────────────────────────
+function showAutoPanel(state) {
+  document.getElementById('auto-idle').style.display    = state === 'idle'    ? 'block' : 'none';
+  document.getElementById('auto-running').style.display = state === 'running' ? 'block' : 'none';
+  document.getElementById('auto-done').style.display    = state === 'done'    ? 'block' : 'none';
+}
+
+// ── 사냥 완료 처리 ────────────────────────────────────
+function finishAuto(manual = false) {
+  autoState = 'done';
+  const elapsed = Math.floor((new Date() - autoStartTime) / 1000);
+  const eh = Math.floor(elapsed / 3600);
+  const em = Math.floor((elapsed % 3600) / 60);
+  const es = elapsed % 60;
+
+  let elapsedText = '';
+  if (eh > 0) elapsedText += `${eh}시간 `;
+  if (em > 0) elapsedText += `${em}분 `;
+  elapsedText += `${es}초 사냥`;
+
+  document.getElementById('disp-total').textContent =
+    `총 ${elapsedText} ${manual ? '(수동 종료)' : '완료'}`;
+
+  showAutoPanel('done');
+  if (!manual) {
+    triggerFlash();
+    speak('자동사냥 시간이 종료되었습니다');
+  }
+}
+
+// ── 자동사냥 타이머 업데이트 ──────────────────────────
+function updateAutoTimer() {
+  if (autoState !== 'running') return;
+
+  const now        = new Date();
+  const remainMs   = autoEndTime - now;
+  const remainSec  = Math.floor(remainMs / 1000);
+
+  // 종료 시각 초과
+  if (remainSec <= 0) {
+    if (!autoWarnFired.done) {
+      autoWarnFired.done = true;
+      finishAuto(false);
+    }
+    return;
+  }
+
+  // 카운트다운 표시
+  const rh = Math.floor(remainSec / 3600);
+  const rm = Math.floor((remainSec % 3600) / 60);
+  const rs = remainSec % 60;
+  const countdownEl = document.getElementById('disp-remain');
+  countdownEl.textContent =
+    `${String(rh).padStart(2,'0')}:${String(rm).padStart(2,'0')}:${String(rs).padStart(2,'0')}`;
+
+  // 색상 단계
+  const warnSec = autoWarnMin * 60;
+  countdownEl.className = 'auto-countdown';
+  if      (remainSec <= 60)      countdownEl.classList.add('danger');
+  else if (remainSec <= warnSec) countdownEl.classList.add('warn');
+
+  // 경고 배너 표시
+  const bannerEl  = document.getElementById('auto-warn-banner');
+  const warnText  = document.getElementById('auto-warn-text');
+  if (remainSec <= warnSec) {
+    bannerEl.style.display = 'block';
+    warnText.textContent   = `종료 ${rm}분 ${String(rs).padStart(2,'0')}초 전!`;
+  } else {
+    bannerEl.style.display = 'none';
+  }
+
+  // TTS 경고 알람
+  if (!autoWarnFired.warn && remainSec <= warnSec) {
+    autoWarnFired.warn = true;
+    triggerFlash();
+    speak(`자동사냥 종료 ${autoWarnMin}분 전입니다`);
+  }
+
+  // 1분 전 추가 알람
+  if (!autoWarnFired['1min'] && remainSec <= 60) {
+    autoWarnFired['1min'] = true;
+    triggerFlash();
+    speak('자동사냥 종료 1분 전입니다');
+  }
+
+  // 10초 전
+  if (!autoWarnFired['10sec'] && remainSec <= 10) {
+    autoWarnFired['10sec'] = true;
+    triggerFlash();
+    speak('자동사냥 종료 10초 전');
+  }
+
+  // 5초 초읽기
+  if (remainSec >= 1 && remainSec <= 5) {
+    const ck = `count_${remainSec}`;
+    if (!autoWarnFired[ck]) {
+      autoWarnFired[ck] = true;
+      playBeep();
+      speak(countWords[remainSec]);
+    }
+  }
+}
+
+// ── 시각 포맷 헬퍼 ───────────────────────────────────
+function formatTime(date) {
+  const h = String(date.getHours()).padStart(2,'0');
+  const m = String(date.getMinutes()).padStart(2,'0');
+  const s = String(date.getSeconds()).padStart(2,'0');
+  return `${h}:${m}:${s}`;
+}
+
+// ── 기존 update() 에 자동사냥 업데이트 연결 ──────────
+// (setInterval이 이미 돌고 있으므로 전역 훅으로 등록)
+const _origUpdate = window._autoHook || null;
+window._autoHook  = updateAutoTimer;
