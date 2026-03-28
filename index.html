@@ -25,6 +25,7 @@
     <div class="tab-bar">
       <button class="tab active" data-tab="boss">⚔️ 보스</button>
       <button class="tab" data-tab="hunting">🚩 컨텐츠</button>
+      <button class="tab" data-tab="auto">🏹 자동사냥</button>
     </div>
 
     <!-- 보스 탭 -->
@@ -36,6 +37,82 @@
     <div id="tab-hunting" class="tab-content">
       <div id="hunting-list" class="item-list"></div>
     </div>
+
+    <!-- 자동사냥 탭 -->
+    <div id="tab-auto" class="tab-content">
+
+      <!-- 상태: 대기 중 -->
+      <div id="auto-idle">
+        <div class="auto-card">
+          <div class="auto-card-title">⏱️ 사냥 시간 설정</div>
+
+          <div class="auto-row">
+            <label class="auto-label">사냥 시간</label>
+            <div class="auto-time-inputs">
+              <div class="auto-time-group">
+                <input type="number" id="input-hour" min="0" max="23" value="0" class="auto-input">
+                <span class="auto-unit">시간</span>
+              </div>
+              <div class="auto-time-group">
+                <input type="number" id="input-min" min="0" max="59" value="30" class="auto-input">
+                <span class="auto-unit">분</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auto-row">
+            <label class="auto-label">종료 알람</label>
+            <div class="auto-time-inputs">
+              <div class="auto-time-group">
+                <input type="number" id="input-warn" min="1" max="60" value="10" class="auto-input auto-input-sm">
+                <span class="auto-unit">분 전</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-start" class="auto-btn-start">🏹 사냥 시작</button>
+        </div>
+      </div>
+
+      <!-- 상태: 사냥 중 -->
+      <div id="auto-running" style="display:none">
+        <div class="auto-card running-card">
+          <div class="auto-status-badge">🏹 사냥 중</div>
+
+          <div class="auto-info-row">
+            <span class="auto-info-label">시작 시각</span>
+            <span id="disp-start" class="auto-info-value"></span>
+          </div>
+          <div class="auto-info-row">
+            <span class="auto-info-label">종료 예정</span>
+            <span id="disp-end" class="auto-info-value accent"></span>
+          </div>
+
+          <div class="auto-countdown-box">
+            <div class="auto-countdown-label">종료까지</div>
+            <div id="disp-remain" class="auto-countdown"></div>
+          </div>
+
+          <!-- 경고 배너 (평소엔 숨김) -->
+          <div id="auto-warn-banner" class="auto-warn-banner" style="display:none">
+            ⚠️ <span id="auto-warn-text"></span>
+          </div>
+
+          <button id="btn-stop" class="auto-btn-stop">⏹ 사냥 종료</button>
+        </div>
+      </div>
+
+      <!-- 상태: 사냥 완료 -->
+      <div id="auto-done" style="display:none">
+        <div class="auto-card done-card">
+          <div class="auto-done-icon">✅</div>
+          <div class="auto-done-title">사냥 종료!</div>
+          <div id="disp-total" class="auto-done-sub"></div>
+          <button id="btn-reset" class="auto-btn-start" style="margin-top:20px">🔄 다시 설정</button>
+        </div>
+      </div>
+
+    </div><!-- /tab-auto -->
 
     <!-- 알람 토글 버튼 -->
     <div class="bottom-bar">
