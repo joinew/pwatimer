@@ -294,6 +294,7 @@ html, body {
   text-align: center;
   font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .auto-input-sm { width: 54px; }
