@@ -431,3 +431,215 @@ html, body {
 .auto-done-icon { font-size: 52px; margin-bottom: 10px; }
 .auto-done-title { font-size: 22px; font-weight: bold; color: var(--green); margin-bottom: 8px; }
 .auto-done-sub { font-size: 14px; color: var(--gray); }
+
+/* ══════════════════════════════════════════════════════
+   개방 중 게이지
+══════════════════════════════════════════════════════ */
+.open-gauge-section {
+  padding: 10px 12px 0;
+}
+
+.open-gauge-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+
+.open-gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.open-gauge-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--white);
+}
+
+.open-gauge-end {
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.open-gauge-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.open-gauge-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s linear;
+}
+
+.open-gauge-remain {
+  font-size: 11px;
+  color: var(--gray);
+  text-align: right;
+}
+
+/* ══════════════════════════════════════════════════════
+   자동사냥 게이지
+══════════════════════════════════════════════════════ */
+.auto-desc {
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+
+.auto-gauge-wrap {
+  margin: 14px 0 0;
+}
+
+.auto-gauge-bg {
+  width: 100%;
+  height: 10px;
+  background: #0f3460;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.auto-gauge-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #4cd137, #fbc531);
+  transition: width 1s linear, background 0.5s;
+  width: 0%;
+}
+
+.auto-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auto-gauge-pct {
+  font-size: 12px;
+  font-weight: bold;
+  color: #fbc531;
+}
+
+.auto-gauge-remain {
+  font-size: 11px;
+  color: var(--gray);
+}
+
+/* ══════════════════════════════════════════════════════
+   버프 탭
+══════════════════════════════════════════════════════ */
+.buff-section {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.buff-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.buff-card.active-buff {
+  border-color: #a6e3a1;
+  background: rgba(166,227,161,0.06);
+}
+
+.buff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.buff-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.buff-icon { font-size: 20px; }
+
+.buff-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--white);
+}
+
+.buff-duration {
+  font-size: 11px;
+  color: var(--gray);
+  background: rgba(255,255,255,0.08);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.buff-btn-start {
+  background: #a6e3a1;
+  color: #1e1e2e;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.buff-btn-start:hover { opacity: 0.85; }
+
+.buff-btn-cancel {
+  width: 100%;
+  margin-top: 10px;
+  background: #45475a;
+  color: var(--gray);
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  cursor: pointer;
+}
+
+.buff-gauge-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 12px 0 5px;
+}
+
+.buff-gauge-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: #a6e3a1;
+  transition: width 1s linear, background 0.5s;
+}
+
+.buff-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.buff-remain {
+  font-size: 12px;
+  font-weight: bold;
+  color: #a6e3a1;
+}
+
+.buff-pct {
+  font-size: 11px;
+  color: var(--gray);
+}

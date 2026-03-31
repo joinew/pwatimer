@@ -26,6 +26,7 @@
       <button class="tab active" data-tab="boss">⚔️ 보스</button>
       <button class="tab" data-tab="hunting">🚩 컨텐츠</button>
       <button class="tab" data-tab="auto">🏹 자동사냥</button>
+      <button class="tab" data-tab="buff">💊 버프</button>
     </div>
 
     <!-- 보스 탭 -->
@@ -35,6 +36,9 @@
 
     <!-- 컨텐츠 탭 -->
     <div id="tab-hunting" class="tab-content">
+      <!-- 개방 중 게이지 -->
+      <div id="open-gauges" class="open-gauge-section"></div>
+      <!-- 다음 컨텐츠 목록 -->
       <div id="hunting-list" class="item-list"></div>
     </div>
 
@@ -44,24 +48,25 @@
       <!-- 상태: 대기 중 -->
       <div id="auto-idle">
         <div class="auto-card">
-          <div class="auto-card-title">⏱️ 사냥 시간 설정</div>
+          <div class="auto-card-title">🏹 자동사냥 종료 시각 설정</div>
+          <div class="auto-desc">사냥이 끝나는 목표 시각을 입력하세요</div>
 
           <div class="auto-row">
-            <label class="auto-label">사냥 시간</label>
+            <label class="auto-label">종료 시각</label>
             <div class="auto-time-inputs">
               <div class="auto-time-group">
-                <input type="number" id="input-hour" min="0" max="23" value="0" class="auto-input">
-                <span class="auto-unit">시간</span>
+                <input type="number" id="input-end-hour" min="0" max="23" value="22" class="auto-input">
+                <span class="auto-unit">시</span>
               </div>
               <div class="auto-time-group">
-                <input type="number" id="input-min" min="0" max="59" value="30" class="auto-input">
+                <input type="number" id="input-end-min" min="0" max="59" value="0" class="auto-input">
                 <span class="auto-unit">분</span>
               </div>
             </div>
           </div>
 
           <div class="auto-row">
-            <label class="auto-label">종료 알람</label>
+            <label class="auto-label">알람 시점</label>
             <div class="auto-time-inputs">
               <div class="auto-time-group">
                 <input type="number" id="input-warn" min="1" max="60" value="10" class="auto-input auto-input-sm">
@@ -88,12 +93,22 @@
             <span id="disp-end" class="auto-info-value accent"></span>
           </div>
 
+          <!-- 진행 게이지 -->
+          <div class="auto-gauge-wrap">
+            <div class="auto-gauge-bg">
+              <div id="auto-gauge-fill" class="auto-gauge-fill"></div>
+            </div>
+            <div class="auto-gauge-labels">
+              <span id="disp-gauge-pct" class="auto-gauge-pct">0%</span>
+              <span id="disp-gauge-remain" class="auto-gauge-remain"></span>
+            </div>
+          </div>
+
           <div class="auto-countdown-box">
             <div class="auto-countdown-label">종료까지</div>
             <div id="disp-remain" class="auto-countdown"></div>
           </div>
 
-          <!-- 경고 배너 (평소엔 숨김) -->
           <div id="auto-warn-banner" class="auto-warn-banner" style="display:none">
             ⚠️ <span id="auto-warn-text"></span>
           </div>
@@ -114,16 +129,43 @@
 
     </div><!-- /tab-auto -->
 
-    <!-- 알람 토글 버튼 -->
+    <!-- 버프 탭 -->
+    <div id="tab-buff" class="tab-content">
+      <div class="buff-section">
+
+        <!-- 숙련도 물약 -->
+        <div class="buff-card" id="buff-mastery">
+          <div class="buff-header">
+            <div class="buff-info">
+              <span class="buff-icon">💊</span>
+              <span class="buff-name">숙련도 물약</span>
+              <span class="buff-duration">1시간</span>
+            </div>
+            <button class="buff-btn-start" id="btn-mastery">사용</button>
+          </div>
+          <div id="mastery-active" style="display:none">
+            <div class="buff-gauge-bg">
+              <div class="buff-gauge-fill" id="mastery-gauge"></div>
+            </div>
+            <div class="buff-gauge-labels">
+              <span id="mastery-remain" class="buff-remain"></span>
+              <span id="mastery-pct" class="buff-pct"></span>
+            </div>
+            <button class="buff-btn-cancel" id="btn-mastery-cancel">취소</button>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /tab-buff -->
+
+    <!-- 알람 토글 -->
     <div class="bottom-bar">
       <button id="alarm-btn" class="alarm-btn on">🔔 알람 켜짐</button>
     </div>
 
   </div>
 
-  <!-- 깜빡임 오버레이 -->
   <div id="flash-overlay"></div>
-
   <script src="app.js"></script>
 </body>
 </html>
