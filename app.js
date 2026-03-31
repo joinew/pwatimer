@@ -1,646 +1,423 @@
-/* ── 리셋 ───────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg-dark:    #1a1a2e;
-  --bg-card:    #16213e;
-  --bg-item:    #0f3460;
-  --accent:     #fbc531;
-  --green:      #4cd137;
-  --orange:     #ffa502;
-  --red:        #ff4757;
-  --red-dark:   #c0392b;
-  --white:      #ffffff;
-  --gray:       #a0a8b8;
-  --text-shadow: -1px -1px 0 #000, 1px -1px 0 #000,
-                 -1px  1px 0 #000, 1px  1px 0 #000;
-}
-
-html, body {
-  height: 100%;
-  background: var(--bg-dark);
-  color: var(--white);
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-/* ── 앱 전체 레이아웃 ───────────────────────────────── */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100dvh; /* dynamic viewport height - 모바일 주소창 대응 */
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-/* ── 헤더 ───────────────────────────────────────────── */
-.header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: 14px 18px 10px;
-  border-bottom: 2px solid var(--accent);
-  flex-shrink: 0;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--accent);
-  text-shadow: var(--text-shadow);
-  letter-spacing: 1px;
-}
-
-.header-time {
-  font-size: 13px;
-  color: var(--gray);
-  margin-top: 3px;
-  font-weight: bold;
-}
-
-/* ── 탭 바 ──────────────────────────────────────────── */
-.tab-bar {
-  display: flex;
-  background: var(--bg-card);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  flex-shrink: 0;
-}
-
-.tab {
-  flex: 1;
-  padding: 12px;
-  background: transparent;
-  border: none;
-  color: var(--gray);
-  font-size: 14px;
-  font-weight: bold;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-}
-
-.tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
-/* ── 탭 콘텐츠 ──────────────────────────────────────── */
-.tab-content {
-  display: none;
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.tab-content.active { display: block; }
-
-/* ── 아이템 리스트 ──────────────────────────────────── */
-.item-list { display: flex; flex-direction: column; gap: 8px; }
-
-/* ── 아이템 카드 ─────────────────────────────────────── */
-.item-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 12px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.3s;
-}
-
-/* 1등 (가장 임박) */
-.item-card.highlight {
-  border-color: var(--green);
-  background: rgba(76, 209, 55, 0.08);
-}
-
-.item-card.highlight .item-name { color: var(--green); }
-.item-card.highlight .item-time-label { color: var(--green); }
-
-/* 경고 1단계: 설정 시간 이하 */
-.item-card.warn-1 {
-  border-color: var(--orange);
-  background: rgba(255, 165, 2, 0.08);
-}
-.item-card.warn-1 .item-name,
-.item-card.warn-1 .remain { color: var(--orange) !important; font-size: 15px !important; }
-
-/* 경고 2단계: 1분 이하 */
-.item-card.warn-2 {
-  border-color: var(--red);
-  background: rgba(255, 71, 87, 0.1);
-  animation: blink-card 0.8s infinite;
-}
-.item-card.warn-2 .item-name,
-.item-card.warn-2 .remain { color: var(--red) !important; font-size: 15px !important; }
-
-/* 경고 3단계: 10초 이하 */
-.item-card.warn-3 {
-  border-color: var(--red-dark);
-  background: rgba(192, 57, 43, 0.15);
-  animation: blink-card 0.35s infinite;
-}
-.item-card.warn-3 .item-name,
-.item-card.warn-3 .remain { color: var(--red) !important; font-size: 16px !important; font-weight: bold !important; }
-
-@keyframes blink-card {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-
-/* 아이템 왼쪽 */
-.item-left { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-
-.item-time-label {
-  font-size: 11px;
-  color: var(--gray);
-  font-weight: bold;
-}
-
-.item-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--white);
-}
-
-/* 아이템 오른쪽 (카운트다운) */
-.item-right { text-align: right; flex-shrink: 0; }
-
-.remain {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--white);
-  text-shadow: var(--text-shadow);
-  white-space: nowrap;
-}
-
-.remain-label {
-  font-size: 10px;
-  color: var(--gray);
-  margin-top: 2px;
-}
-
-/* 빈 메시지 */
-.empty-msg {
-  text-align: center;
-  color: var(--gray);
-  padding: 40px 0;
-  font-size: 14px;
-}
-
-/* ── 하단 알람 버튼 ─────────────────────────────────── */
-.bottom-bar {
-  padding: 10px 12px;
-  background: var(--bg-card);
-  border-top: 1px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;
-}
-
-.alarm-btn {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.alarm-btn.on  { background: var(--green);  color: #1a1a2e; }
-.alarm-btn.off { background: #45475a;       color: var(--gray); }
-
-/* ── 화면 깜빡임 오버레이 ───────────────────────────── */
-#flash-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 70, 70, 0.45);
-  pointer-events: none;
-  opacity: 0;
-  z-index: 9999;
-  transition: opacity 0.1s;
-}
-#flash-overlay.active { opacity: 1; }
-
-/* ── 스크롤바 숨김 ──────────────────────────────────── */
-.tab-content::-webkit-scrollbar { display: none; }
-.tab-content { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* ══════════════════════════════════════════════════════
-   자동사냥 타이머
-══════════════════════════════════════════════════════ */
-
-/* 카드 공통 */
-.auto-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 20px 18px;
-  margin-bottom: 12px;
-}
-
-.auto-card-title {
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--accent);
-  margin-bottom: 18px;
-  border-bottom: 1px solid rgba(251,197,49,0.25);
-  padding-bottom: 10px;
-}
-
-/* 입력 행 */
-.auto-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  gap: 12px;
-}
-
-.auto-label {
-  font-size: 14px;
-  color: var(--gray);
-  flex-shrink: 0;
-  width: 70px;
-}
-
-.auto-time-inputs {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex: 1;
-  justify-content: flex-end;
-}
-
-.auto-time-group {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.auto-input {
-  width: 64px;
-  padding: 10px 8px;
-  background: #0f3460;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
-  color: var(--white);
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.auto-input-sm { width: 54px; }
-
-.auto-input:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.auto-unit {
-  font-size: 13px;
-  color: var(--gray);
-}
-
-/* 시작 버튼 */
-.auto-btn-start {
-  width: 100%;
-  padding: 14px;
-  background: var(--accent);
-  color: #1a1a2e;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: opacity 0.2s;
-}
-.auto-btn-start:hover { opacity: 0.88; }
-
-/* 종료 버튼 */
-.auto-btn-stop {
-  width: 100%;
-  padding: 12px;
-  background: #45475a;
-  color: var(--gray);
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  cursor: pointer;
-  margin-top: 16px;
-  transition: opacity 0.2s;
-}
-.auto-btn-stop:hover { opacity: 0.88; }
-
-/* 사냥 중 카드 */
-.running-card {
-  border-color: var(--accent);
-  background: rgba(251,197,49,0.04);
-}
-
-.auto-status-badge {
-  display: inline-block;
-  background: var(--accent);
-  color: #1a1a2e;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-bottom: 16px;
-}
-
-.auto-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.auto-info-label {
-  font-size: 13px;
-  color: var(--gray);
-}
-
-.auto-info-value {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--white);
-}
-
-.auto-info-value.accent { color: var(--accent); }
-
-/* 카운트다운 박스 */
-.auto-countdown-box {
-  background: #0f3460;
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  margin: 16px 0 0;
-}
-
-.auto-countdown-label {
-  font-size: 12px;
-  color: var(--gray);
-  margin-bottom: 6px;
-}
-
-.auto-countdown {
-  font-size: 32px;
-  font-weight: bold;
-  color: var(--white);
-  letter-spacing: 2px;
-  text-shadow: var(--text-shadow);
-  transition: color 0.3s;
-}
-
-.auto-countdown.warn  { color: var(--orange); }
-.auto-countdown.danger { color: var(--red); animation: blink-card 0.7s infinite; }
-
-/* 경고 배너 */
-.auto-warn-banner {
-  background: rgba(255,71,87,0.15);
-  border: 1px solid var(--red);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--red);
-  text-align: center;
-  margin-top: 14px;
-  animation: blink-card 0.8s infinite;
-}
-
-/* 완료 카드 */
-.done-card {
-  border-color: var(--green);
-  background: rgba(76,209,55,0.05);
-  text-align: center;
-  padding: 36px 18px;
-}
-
-.auto-done-icon { font-size: 52px; margin-bottom: 10px; }
-.auto-done-title { font-size: 22px; font-weight: bold; color: var(--green); margin-bottom: 8px; }
-.auto-done-sub { font-size: 14px; color: var(--gray); }
-
-/* ══════════════════════════════════════════════════════
-   개방 중 게이지
-══════════════════════════════════════════════════════ */
-.open-gauge-section {
-  padding: 10px 12px 0;
-}
-
-.open-gauge-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 8px;
-}
-
-.open-gauge-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.open-gauge-name {
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--white);
-}
-
-.open-gauge-end {
-  font-size: 11px;
-  color: var(--gray);
-}
-
-.open-gauge-bar-bg {
-  width: 100%;
-  height: 8px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.open-gauge-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 1s linear;
-}
-
-.open-gauge-remain {
-  font-size: 11px;
-  color: var(--gray);
-  text-align: right;
-}
-
-/* ══════════════════════════════════════════════════════
-   자동사냥 게이지
-══════════════════════════════════════════════════════ */
-.auto-desc {
-  font-size: 12px;
-  color: var(--gray);
-  margin-bottom: 14px;
-}
-
-.auto-gauge-wrap {
-  margin: 14px 0 0;
-}
-
-.auto-gauge-bg {
-  width: 100%;
-  height: 10px;
-  background: #0f3460;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-
-.auto-gauge-fill {
-  height: 100%;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #4cd137, #fbc531);
-  transition: width 1s linear, background 0.5s;
-  width: 0%;
-}
-
-.auto-gauge-labels {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.auto-gauge-pct {
-  font-size: 12px;
-  font-weight: bold;
-  color: #fbc531;
-}
-
-.auto-gauge-remain {
-  font-size: 11px;
-  color: var(--gray);
-}
-
-/* ══════════════════════════════════════════════════════
-   버프 탭
-══════════════════════════════════════════════════════ */
-.buff-section {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.buff-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.buff-card.active-buff {
-  border-color: #a6e3a1;
-  background: rgba(166,227,161,0.06);
-}
-
-.buff-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.buff-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.buff-icon { font-size: 20px; }
-
-.buff-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--white);
-}
-
-.buff-duration {
-  font-size: 11px;
-  color: var(--gray);
-  background: rgba(255,255,255,0.08);
-  padding: 2px 7px;
-  border-radius: 10px;
-}
-
-.buff-btn-start {
-  background: #a6e3a1;
-  color: #1e1e2e;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 18px;
-  font-size: 13px;
-  font-weight: bold;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.buff-btn-start:hover { opacity: 0.85; }
-
-.buff-btn-cancel {
-  width: 100%;
-  margin-top: 10px;
-  background: #45475a;
-  color: var(--gray);
-  border: none;
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 12px;
-  font-weight: bold;
-  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  cursor: pointer;
-}
-
-.buff-gauge-bg {
-  width: 100%;
-  height: 8px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 12px 0 5px;
-}
-
-.buff-gauge-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: #a6e3a1;
-  transition: width 1s linear, background 0.5s;
-}
-
-.buff-gauge-labels {
-  display: flex;
-  justify-content: space-between;
-}
-
-.buff-remain {
-  font-size: 12px;
-  font-weight: bold;
-  color: #a6e3a1;
-}
-
-.buff-pct {
-  font-size: 11px;
-  color: var(--gray);
-}
+'use strict';
+
+// ── 시간표 데이터 ──────────────────────────────────────
+const schedule = {
+  boss: [
+    { name: '[파우스트] 기란감옥',     time: ['10:00'], days: null },
+    { name: '[드레이크] 해적섬',       time: ['14:00'], days: null },
+    { name: '[마이노샤먼] 기란감옥',   time: ['17:10'], days: null },
+    { name: '[이프리트] 몽환의섬',     time: ['19:10'], days: null },
+    { name: '[데스나이트] 기란감옥',   time: ['20:10'], days: null },
+    { name: '[제로스] 버땅',           time: ['22:10'], days: null },
+    { name: '[발록] 상아탑',           time: ['23:10'], days: [1,2,3,4,5] },
+    { name: '[이자벨] 신념3층',        time: ['23:10'], days: [6] },
+    { name: '[벨리에] 신념2층',        time: ['23:10'], days: [0] },
+    { name: '[에르자베] 개미동굴',     time: ['00:10'], days: null },
+    { name: '[아리모크] 악마왕의영토', time: ['01:10'], days: null },
+  ],
+  hunting: [
+    { name: '몬스터디펜스', time: ['20:25'],          days: null },
+    { name: '배틀존',       time: ['20:45', '22:45'], days: null },
+    { name: '길드워',       time: ['21:30'],          days: null },
+    { name: '탐욕의홀',     time: ['18:00'],          days: null },
+    { name: '지구라트',     time: ['21:00'],          days: null },
+  ],
+};
+
+const openContents = [
+  { name: '탐욕의홀', startH: 18, startM: 0, endH: 20, endM: 0 },
+  { name: '지구라트', startH: 21, startM: 0, endH: 24, endM: 0 },
+];
+
+// ── 상태 ──────────────────────────────────────────────
+let alarmEnabled = true;
+const alarmFired = new Map();
+
+let autoState     = 'idle';
+let autoStartTime = null;
+let autoEndTime   = null;
+let autoWarnMin   = 10;
+let autoWarnFired = {};
+
+const BUFF_DURATION = 60 * 60 * 1000;
+let buffState = {};
+
+// ── localStorage ──────────────────────────────────────
+function loadBuffState() {
+  try {
+    const s = localStorage.getItem('buffState');
+    if (s) buffState = JSON.parse(s);
+  } catch(e) {}
+}
+function saveBuffState() {
+  try { localStorage.setItem('buffState', JSON.stringify(buffState)); } catch(e) {}
+}
+function restoreAutoHunt() {
+  try {
+    const s = localStorage.getItem('autoHunt');
+    if (!s) return;
+    const d = JSON.parse(s);
+    if (d.endMs <= Date.now()) { localStorage.removeItem('autoHunt'); return; }
+    autoStartTime = new Date(d.startMs);
+    autoEndTime   = new Date(d.endMs);
+    autoWarnMin   = d.warnMin || 10;
+    autoWarnFired = {};
+    autoState     = 'running';
+    document.getElementById('disp-start').textContent = formatHHMMSS(autoStartTime);
+    document.getElementById('disp-end').textContent   = formatHHMM(autoEndTime);
+    showAutoPanel('running');
+  } catch(e) {}
+}
+
+// ── 알람 토글 ─────────────────────────────────────────
+document.getElementById('alarm-btn').addEventListener('click', () => {
+  alarmEnabled = !alarmEnabled;
+  const btn = document.getElementById('alarm-btn');
+  btn.textContent = alarmEnabled ? '🔔 알람 켜짐' : '🔕 알람 꺼짐';
+  btn.className   = 'alarm-btn ' + (alarmEnabled ? 'on' : 'off');
+});
+
+// ── 남은 시간 계산 ────────────────────────────────────
+function calcRemain(timeStr, validDays) {
+  const now = new Date();
+  if (validDays && !validDays.includes(now.getDay())) return null;
+  const [h, m] = timeStr.split(':').map(Number);
+  const target = new Date(); target.setHours(h, m, 0, 0);
+  if (target <= now) {
+    target.setDate(target.getDate() + 1);
+    if (validDays && !validDays.includes(target.getDay())) return null;
+  }
+  const diffSec = Math.floor((target - now) / 1000);
+  const hh = Math.floor(diffSec / 3600);
+  const mm = Math.floor((diffSec % 3600) / 60);
+  const ss = diffSec % 60;
+  let text = '';
+  if (hh > 0) text += hh + '시간 ';
+  text += mm + '분 ' + String(ss).padStart(2,'0') + '초';
+  return { totalSec: diffSec, text };
+}
+
+// ── 알람 ──────────────────────────────────────────────
+let flashTimer = null, flashCount = 0;
+function triggerFlash() {
+  if (!alarmEnabled || flashTimer) return;
+  const el = document.getElementById('flash-overlay');
+  flashCount = 0;
+  flashTimer = setInterval(() => {
+    el.classList.toggle('active');
+    if (++flashCount >= 8) {
+      clearInterval(flashTimer); flashTimer = null;
+      el.classList.remove('active');
+    }
+  }, 200);
+}
+
+function playBeep() {
+  if (!alarmEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    [0, 0.25, 0.5].forEach(o => {
+      osc.frequency.setValueAtTime(1046, ctx.currentTime + o);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime + o);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + o + 0.2);
+    });
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.8);
+  } catch(e) {}
+}
+
+// ── 보스/컨텐츠 알람 체크 ────────────────────────────
+const WARN_SEC = 3 * 60;
+function checkAlarm(items) {
+  items.forEach(item => {
+    const key = item.name + '_' + item.timeStr;
+    const sec = item.remain.totalSec;
+    if (!alarmFired.has(key)) alarmFired.set(key, new Set());
+    const fired = alarmFired.get(key);
+    if (sec > WARN_SEC) { alarmFired.delete(key); return; }
+    if (!fired.has('warn'))   { fired.add('warn');   triggerFlash(); }
+    if (sec <= 60 && !fired.has('1min'))  { fired.add('1min');  triggerFlash(); }
+    if (sec <= 10 && !fired.has('10sec')) { fired.add('10sec'); triggerFlash(); }
+    if (sec >= 1 && sec <= 5) {
+      const ck = String(sec);
+      if (!fired.has(ck)) { fired.add(ck); playBeep(); }
+    }
+    if (sec === 0 && !fired.has('spawn')) { fired.add('spawn'); triggerFlash(); }
+  });
+}
+
+// ── 카드 HTML ─────────────────────────────────────────
+function buildCard(item, index) {
+  const sec = item.remain.totalSec;
+  let warnCls = '';
+  if      (sec > 0 && sec <= 10)      warnCls = 'warn-3';
+  else if (sec > 0 && sec <= 60)      warnCls = 'warn-2';
+  else if (sec > 0 && sec <= WARN_SEC) warnCls = 'warn-1';
+  const hlCls = (index === 0 && !warnCls) ? 'highlight' : '';
+  return `<div class="item-card ${hlCls} ${warnCls}">
+    <div class="item-left">
+      <div class="item-time-label">${item.timeStr}</div>
+      <div class="item-name">${item.name}</div>
+    </div>
+    <div class="item-right">
+      <div class="remain">${item.remain.text}</div>
+      <div class="remain-label">남은 시간</div>
+    </div>
+  </div>`;
+}
+
+// ── 개방 게이지 ───────────────────────────────────────
+function renderOpenGauges() {
+  const now = new Date();
+  const section = document.getElementById('open-section');
+  const el = document.getElementById('open-gauges');
+  let html = '';
+  let hasOpen = false;
+
+  openContents.forEach(c => {
+    const start = new Date(now); start.setHours(c.startH, c.startM, 0, 0);
+    const end   = new Date(now); end.setHours(c.endH, c.endM, 0, 0);
+    const nowMs = now.getTime();
+    if (nowMs < start || nowMs >= end) return;
+    hasOpen = true;
+
+    const pct = Math.min(100, Math.round(((nowMs - start) / (end - start)) * 100));
+    const remainSec = Math.max(0, Math.floor((end - nowMs) / 1000));
+    const rm = Math.floor(remainSec / 60);
+    const rs = remainSec % 60;
+    const endHH = String(end.getHours()).padStart(2,'0');
+    const endMM = String(end.getMinutes()).padStart(2,'0');
+    const barColor = pct >= 80 ? '#ff4757' : pct >= 50 ? '#ffa502' : '#4cd137';
+
+    html += `<div class="open-gauge-card">
+      <div class="open-gauge-header">
+        <span class="open-gauge-name">${c.name}</span>
+        <span class="open-gauge-end">${endHH}:${endMM} 종료</span>
+      </div>
+      <div class="gauge-bg">
+        <div class="gauge-fill" style="width:${pct}%;background:${barColor};transition:width 1s linear"></div>
+      </div>
+      <div class="open-gauge-remain">${rm}분 ${String(rs).padStart(2,'0')}초 남음</div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+  section.style.display = hasOpen ? 'block' : 'none';
+}
+
+// ── 자동사냥 ──────────────────────────────────────────
+function formatHHMM(d)   { return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function formatHHMMSS(d) { return formatHHMM(d) + ':' + String(d.getSeconds()).padStart(2,'0'); }
+
+function showAutoPanel(state) {
+  document.getElementById('auto-idle').style.display    = state === 'idle'    ? 'block' : 'none';
+  document.getElementById('auto-running').style.display = state === 'running' ? 'block' : 'none';
+  document.getElementById('auto-done').style.display    = state === 'done'    ? 'block' : 'none';
+}
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  const endH = parseInt(document.getElementById('input-end-hour').value) || 0;
+  const endM = parseInt(document.getElementById('input-end-min').value)  || 0;
+  const warn = parseInt(document.getElementById('input-warn').value)     || 10;
+  const now  = new Date();
+  const end  = new Date(); end.setHours(endH, endM, 0, 0);
+  if (end <= now) end.setDate(end.getDate() + 1);
+
+  autoStartTime = now; autoEndTime = end;
+  autoWarnMin = warn; autoWarnFired = {}; autoState = 'running';
+
+  localStorage.setItem('autoHunt', JSON.stringify({
+    startMs: now.getTime(), endMs: end.getTime(), warnMin: warn
+  }));
+
+  document.getElementById('disp-start').textContent = formatHHMMSS(now);
+  document.getElementById('disp-end').textContent   = formatHHMM(end);
+  document.getElementById('auto-warn-banner').style.display = 'none';
+  showAutoPanel('running');
+});
+
+document.getElementById('btn-stop').addEventListener('click', () => {
+  if (!confirm('사냥을 종료하시겠습니까?')) return;
+  finishAuto(true);
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  autoState = 'idle';
+  localStorage.removeItem('autoHunt');
+  showAutoPanel('idle');
+});
+
+function finishAuto(manual = false) {
+  autoState = 'done';
+  localStorage.removeItem('autoHunt');
+  const elapsed = Math.floor((new Date() - autoStartTime) / 1000);
+  const eh = Math.floor(elapsed / 3600);
+  const em = Math.floor((elapsed % 3600) / 60);
+  let text = '총 ';
+  if (eh > 0) text += eh + '시간 ';
+  text += em + '분 사냥 ' + (manual ? '(수동 종료)' : '완료');
+  document.getElementById('disp-total').textContent = text;
+  showAutoPanel('done');
+  if (!manual) triggerFlash();
+}
+
+function updateAutoTimer() {
+  if (autoState !== 'running') return;
+  const now = new Date();
+  const remainMs  = autoEndTime - now;
+  const remainSec = Math.floor(remainMs / 1000);
+
+  if (remainSec <= 0) {
+    if (!autoWarnFired['done']) { autoWarnFired['done'] = true; finishAuto(false); }
+    return;
+  }
+
+  const pct = Math.min(100, Math.round(((now - autoStartTime) / (autoEndTime - autoStartTime)) * 100));
+  const gf = document.getElementById('auto-gauge-fill');
+  const gp = document.getElementById('disp-gauge-pct');
+  const gr = document.getElementById('disp-gauge-remain');
+  if (gf) {
+    const bc = pct >= 80 ? '#ff4757' : pct >= 50 ? '#ffa502' : '#4cd137';
+    gf.style.width = pct + '%'; gf.style.background = bc;
+  }
+  if (gp) gp.textContent = pct + '%';
+
+  const rh = Math.floor(remainSec / 3600);
+  const rm = Math.floor((remainSec % 3600) / 60);
+  const rs = remainSec % 60;
+  const cd = document.getElementById('disp-remain');
+  if (cd) {
+    cd.textContent = String(rh).padStart(2,'0') + ':' + String(rm).padStart(2,'0') + ':' + String(rs).padStart(2,'0');
+    cd.className = 'countdown' + (remainSec <= 60 ? ' danger' : remainSec <= autoWarnMin*60 ? ' warn' : '');
+  }
+  if (gr) { let t=''; if(rh>0)t+=rh+'시간 '; t+=rm+'분 '+String(rs).padStart(2,'0')+'초 남음'; gr.textContent=t; }
+
+  const bannerEl = document.getElementById('auto-warn-banner');
+  const warnText = document.getElementById('auto-warn-text');
+  if (bannerEl) {
+    if (remainSec <= autoWarnMin * 60) {
+      bannerEl.style.display = 'block';
+      if (warnText) warnText.textContent = '종료 ' + rm + '분 ' + String(rs).padStart(2,'0') + '초 전!';
+    } else {
+      bannerEl.style.display = 'none';
+    }
+  }
+
+  const wf = autoWarnFired;
+  if (!wf.warn    && remainSec <= autoWarnMin*60) { wf.warn    = true; triggerFlash(); }
+  if (!wf['1min'] && remainSec <= 60)              { wf['1min'] = true; triggerFlash(); }
+  if (!wf['10sec']&& remainSec <= 10)              { wf['10sec']= true; triggerFlash(); }
+  if (remainSec >= 1 && remainSec <= 5) {
+    const ck = 'c'+remainSec;
+    if (!wf[ck]) { wf[ck]=true; playBeep(); }
+  }
+}
+
+// ── 숙련도 물약 ───────────────────────────────────────
+document.getElementById('btn-mastery').addEventListener('click', () => {
+  buffState.mastery = { startMs: Date.now() };
+  saveBuffState();
+  updateBuffs();
+});
+
+document.getElementById('btn-mastery-cancel').addEventListener('click', () => {
+  if (!confirm('숙련도 물약 타이머를 취소하시겠습니까?')) return;
+  delete buffState.mastery;
+  saveBuffState();
+  updateBuffs();
+});
+
+function updateBuffs() {
+  const now = Date.now();
+  const m   = buffState.mastery;
+  const activeEl = document.getElementById('mastery-active');
+  const startBtn = document.getElementById('btn-mastery');
+  const card     = document.getElementById('buff-mastery');
+
+  if (m) {
+    const elapsed  = now - m.startMs;
+    const remainMs = BUFF_DURATION - elapsed;
+    if (remainMs <= 0) {
+      delete buffState.mastery; saveBuffState();
+      triggerFlash();
+      activeEl.style.display = 'none'; startBtn.style.display = 'inline-block';
+      return;
+    }
+    const pct       = Math.min(100, Math.round((elapsed / BUFF_DURATION) * 100));
+    const remainSec = Math.floor(remainMs / 1000);
+    const rm = Math.floor(remainSec / 60);
+    const rs = remainSec % 60;
+    const ge = document.getElementById('mastery-gauge');
+    const re = document.getElementById('mastery-remain');
+    const pe = document.getElementById('mastery-pct');
+    if (ge) { const bc=pct>=80?'#ff4757':pct>=50?'#ffa502':'#a6e3a1'; ge.style.width=pct+'%'; ge.style.background=bc; }
+    if (re) re.textContent = rm + '분 ' + String(rs).padStart(2,'0') + '초 남음';
+    if (pe) pe.textContent = pct + '%';
+    activeEl.style.display = 'block'; startBtn.style.display = 'none';
+
+    if (!m.warned10 && remainSec <= 600) { m.warned10 = true; saveBuffState(); triggerFlash(); }
+    if (!m.warned1  && remainSec <= 60)  { m.warned1  = true; saveBuffState(); triggerFlash(); }
+  } else {
+    activeEl.style.display = 'none'; startBtn.style.display = 'inline-block';
+  }
+}
+
+// ── 메인 업데이트 ─────────────────────────────────────
+function update() {
+  const now  = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('current-time-display').textContent =
+    (now.getMonth()+1) + '월 ' + now.getDate() + '일 (' + days[now.getDay()] + ') ' +
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0');
+
+  // 보스 (2개)
+  const bosses = [];
+  schedule.boss.forEach(b => b.time.forEach(t => {
+    const r = calcRemain(t, b.days);
+    if (r) bosses.push({ name: b.name, timeStr: t, remain: r });
+  }));
+  bosses.sort((a,b) => a.remain.totalSec - b.remain.totalSec);
+  checkAlarm(bosses);
+  const bossEl = document.getElementById('boss-list');
+  bossEl.innerHTML = bosses.length === 0
+    ? '<div class="empty-msg">오늘 남은 보스가 없습니다 😴</div>'
+    : bosses.slice(0, 2).map((item,i) => buildCard(item,i)).join('');
+
+  // 컨텐츠 (2개)
+  const huntings = [];
+  schedule.hunting.forEach(h => h.time.forEach(t => {
+    const r = calcRemain(t, h.days);
+    if (r) huntings.push({ name: h.name, timeStr: t, remain: r });
+  }));
+  huntings.sort((a,b) => a.remain.totalSec - b.remain.totalSec);
+  checkAlarm(huntings);
+  const huntEl = document.getElementById('hunting-list');
+  huntEl.innerHTML = huntings.length === 0
+    ? '<div class="empty-msg">오늘 남은 컨텐츠가 없습니다 😴</div>'
+    : huntings.slice(0, 2).map((item,i) => buildCard(item,i)).join('');
+
+  // 개방 게이지
+  renderOpenGauges();
+
+  // 자동사냥
+  updateAutoTimer();
+
+  // 버프
+  updateBuffs();
+}
+
+// ── Service Worker ────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── 시작 ──────────────────────────────────────────────
+loadBuffState();
+restoreAutoHunt();
+update();
+setInterval(update, 1000);

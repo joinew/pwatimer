@@ -15,150 +15,140 @@
 <body>
   <div class="app-container">
 
-    <!-- 상단 헤더 -->
+    <!-- 헤더 -->
     <div class="header">
       <div class="header-title">⚔️ 리니지 보스타이머</div>
       <div id="current-time-display" class="header-time"></div>
     </div>
 
-    <!-- 탭 -->
-    <div class="tab-bar">
-      <button class="tab active" data-tab="boss">⚔️ 보스</button>
-      <button class="tab" data-tab="hunting">🚩 컨텐츠</button>
-      <button class="tab" data-tab="auto">🏹 자동사냥</button>
-      <button class="tab" data-tab="buff">💊 버프</button>
-    </div>
+    <!-- 스크롤 영역 -->
+    <div class="scroll-area">
 
-    <!-- 보스 탭 -->
-    <div id="tab-boss" class="tab-content active">
-      <div id="boss-list" class="item-list"></div>
-    </div>
+      <!-- 보스 -->
+      <div class="section-block">
+        <div class="section-label">⚔️ 다음 보스</div>
+        <div id="boss-list" class="item-list"></div>
+      </div>
 
-    <!-- 컨텐츠 탭 -->
-    <div id="tab-hunting" class="tab-content">
-      <!-- 개방 중 게이지 -->
-      <div id="open-gauges" class="open-gauge-section"></div>
-      <!-- 다음 컨텐츠 목록 -->
-      <div id="hunting-list" class="item-list"></div>
-    </div>
+      <!-- 컨텐츠 -->
+      <div class="section-block">
+        <div class="section-label">🚩 다음 컨텐츠</div>
+        <div id="hunting-list" class="item-list"></div>
+      </div>
 
-    <!-- 자동사냥 탭 -->
-    <div id="tab-auto" class="tab-content">
+      <div class="divider"></div>
 
-      <!-- 상태: 대기 중 -->
-      <div id="auto-idle">
-        <div class="auto-card">
-          <div class="auto-card-title">🏹 자동사냥 종료 시각 설정</div>
-          <div class="auto-desc">사냥이 끝나는 목표 시각을 입력하세요</div>
+      <!-- 자동사냥 -->
+      <div class="section-block">
+        <div class="section-label">🏹 자동사냥</div>
 
-          <div class="auto-row">
-            <label class="auto-label">종료 시각</label>
-            <div class="auto-time-inputs">
-              <div class="auto-time-group">
-                <input type="number" id="input-end-hour" min="0" max="23" value="22" class="auto-input">
-                <span class="auto-unit">시</span>
-              </div>
-              <div class="auto-time-group">
-                <input type="number" id="input-end-min" min="0" max="59" value="0" class="auto-input">
-                <span class="auto-unit">분</span>
+        <div id="auto-idle">
+          <div class="inner-card">
+            <div class="auto-desc">종료 목표 시각을 입력하세요</div>
+            <div class="auto-row">
+              <label class="auto-label">종료 시각</label>
+              <div class="auto-time-inputs">
+                <div class="auto-time-group">
+                  <input type="number" id="input-end-hour" min="0" max="23" value="22" class="auto-input">
+                  <span class="auto-unit">시</span>
+                </div>
+                <div class="auto-time-group">
+                  <input type="number" id="input-end-min" min="0" max="59" value="0" class="auto-input">
+                  <span class="auto-unit">분</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="auto-row">
-            <label class="auto-label">알람 시점</label>
-            <div class="auto-time-inputs">
-              <div class="auto-time-group">
-                <input type="number" id="input-warn" min="1" max="60" value="10" class="auto-input auto-input-sm">
-                <span class="auto-unit">분 전</span>
+            <div class="auto-row">
+              <label class="auto-label">알람 시점</label>
+              <div class="auto-time-inputs">
+                <div class="auto-time-group">
+                  <input type="number" id="input-warn" min="1" max="60" value="10" class="auto-input auto-input-sm">
+                  <span class="auto-unit">분 전</span>
+                </div>
               </div>
             </div>
+            <button id="btn-start" class="btn-primary">🏹 사냥 시작</button>
           </div>
+        </div>
 
-          <button id="btn-start" class="auto-btn-start">🏹 사냥 시작</button>
+        <div id="auto-running" style="display:none">
+          <div class="inner-card running-card">
+            <div class="running-badge">🏹 사냥 중</div>
+            <div class="info-row">
+              <span class="info-label">시작</span>
+              <span id="disp-start" class="info-value"></span>
+              <span class="info-label" style="margin-left:12px">종료</span>
+              <span id="disp-end" class="info-value accent"></span>
+            </div>
+            <div class="gauge-wrap">
+              <div class="gauge-bg">
+                <div id="auto-gauge-fill" class="gauge-fill"></div>
+              </div>
+              <div class="gauge-labels">
+                <span id="disp-gauge-pct" class="gauge-pct">0%</span>
+                <span id="disp-gauge-remain" class="gauge-remain"></span>
+              </div>
+            </div>
+            <div class="countdown-box">
+              <div class="countdown-label">종료까지</div>
+              <div id="disp-remain" class="countdown"></div>
+            </div>
+            <div id="auto-warn-banner" class="warn-banner" style="display:none">
+              ⚠️ <span id="auto-warn-text"></span>
+            </div>
+            <button id="btn-stop" class="btn-secondary">⏹ 사냥 종료</button>
+          </div>
+        </div>
+
+        <div id="auto-done" style="display:none">
+          <div class="inner-card done-card">
+            <div class="done-icon">✅</div>
+            <div class="done-title">사냥 종료!</div>
+            <div id="disp-total" class="done-sub"></div>
+            <button id="btn-reset" class="btn-primary" style="margin-top:16px">🔄 다시 설정</button>
+          </div>
         </div>
       </div>
 
-      <!-- 상태: 사냥 중 -->
-      <div id="auto-running" style="display:none">
-        <div class="auto-card running-card">
-          <div class="auto-status-badge">🏹 사냥 중</div>
+      <div class="divider"></div>
 
-          <div class="auto-info-row">
-            <span class="auto-info-label">시작 시각</span>
-            <span id="disp-start" class="auto-info-value"></span>
-          </div>
-          <div class="auto-info-row">
-            <span class="auto-info-label">종료 예정</span>
-            <span id="disp-end" class="auto-info-value accent"></span>
-          </div>
-
-          <!-- 진행 게이지 -->
-          <div class="auto-gauge-wrap">
-            <div class="auto-gauge-bg">
-              <div id="auto-gauge-fill" class="auto-gauge-fill"></div>
-            </div>
-            <div class="auto-gauge-labels">
-              <span id="disp-gauge-pct" class="auto-gauge-pct">0%</span>
-              <span id="disp-gauge-remain" class="auto-gauge-remain"></span>
-            </div>
-          </div>
-
-          <div class="auto-countdown-box">
-            <div class="auto-countdown-label">종료까지</div>
-            <div id="disp-remain" class="auto-countdown"></div>
-          </div>
-
-          <div id="auto-warn-banner" class="auto-warn-banner" style="display:none">
-            ⚠️ <span id="auto-warn-text"></span>
-          </div>
-
-          <button id="btn-stop" class="auto-btn-stop">⏹ 사냥 종료</button>
-        </div>
-      </div>
-
-      <!-- 상태: 사냥 완료 -->
-      <div id="auto-done" style="display:none">
-        <div class="auto-card done-card">
-          <div class="auto-done-icon">✅</div>
-          <div class="auto-done-title">사냥 종료!</div>
-          <div id="disp-total" class="auto-done-sub"></div>
-          <button id="btn-reset" class="auto-btn-start" style="margin-top:20px">🔄 다시 설정</button>
-        </div>
-      </div>
-
-    </div><!-- /tab-auto -->
-
-    <!-- 버프 탭 -->
-    <div id="tab-buff" class="tab-content">
-      <div class="buff-section">
-
-        <!-- 숙련도 물약 -->
-        <div class="buff-card" id="buff-mastery">
+      <!-- 숙련도 물약 -->
+      <div class="section-block">
+        <div class="section-label">💊 숙련도 물약</div>
+        <div class="inner-card" id="buff-mastery">
           <div class="buff-header">
             <div class="buff-info">
-              <span class="buff-icon">💊</span>
               <span class="buff-name">숙련도 물약</span>
               <span class="buff-duration">1시간</span>
             </div>
-            <button class="buff-btn-start" id="btn-mastery">사용</button>
+            <button class="btn-buff" id="btn-mastery">사용</button>
           </div>
           <div id="mastery-active" style="display:none">
-            <div class="buff-gauge-bg">
-              <div class="buff-gauge-fill" id="mastery-gauge"></div>
+            <div class="gauge-bg" style="margin-top:10px">
+              <div class="gauge-fill buff-fill" id="mastery-gauge"></div>
             </div>
-            <div class="buff-gauge-labels">
-              <span id="mastery-remain" class="buff-remain"></span>
-              <span id="mastery-pct" class="buff-pct"></span>
+            <div class="gauge-labels">
+              <span id="mastery-remain" class="gauge-remain" style="color:#a6e3a1"></span>
+              <span id="mastery-pct" class="gauge-pct"></span>
             </div>
-            <button class="buff-btn-cancel" id="btn-mastery-cancel">취소</button>
+            <button class="btn-secondary" id="btn-mastery-cancel" style="margin-top:8px">취소</button>
           </div>
         </div>
-
       </div>
-    </div><!-- /tab-buff -->
 
-    <!-- 알람 토글 -->
+      <!-- 개방 중 컨텐츠 (해당 시간에만) -->
+      <div id="open-section" style="display:none">
+        <div class="divider"></div>
+        <div class="section-block">
+          <div class="section-label">🕐 개방 중</div>
+          <div id="open-gauges"></div>
+        </div>
+      </div>
+
+      <div style="height:20px"></div>
+    </div><!-- /scroll-area -->
+
+    <!-- 하단 알람 버튼 -->
     <div class="bottom-bar">
       <button id="alarm-btn" class="alarm-btn on">🔔 알람 켜짐</button>
     </div>
