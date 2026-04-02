@@ -3,24 +3,24 @@
 // ── 시간표 데이터 ──────────────────────────────────────
 const schedule = {
   boss: [
-    { name: '[파우스트] 기란감옥',     time: ['10:00'], days: null },
-    { name: '[드레이크] 해적섬',       time: ['14:00'], days: null },
-    { name: '[마이노샤먼] 기란감옥',   time: ['17:10'], days: null },
-    { name: '[이프리트] 몽환의섬',     time: ['19:10'], days: null },
-    { name: '[데스나이트] 기란감옥',   time: ['20:10'], days: null },
-    { name: '[제로스] 버땅',           time: ['22:10'], days: null },
-    { name: '[발록] 상아탑',           time: ['23:10'], days: [1,2,3,4,5] },
-    { name: '[이자벨] 신념3층',        time: ['23:10'], days: [6] },
-    { name: '[벨리에] 신념2층',        time: ['23:10'], days: [0] },
-    { name: '[에르자베] 개미동굴',     time: ['00:10'], days: null },
-    { name: '[아리모크] 악마왕의영토', time: ['01:10'], days: null },
+    { name: '[파우스트] 기란감옥',     time: ['10:00'], days: null,      sound: '파우스트' },
+    { name: '[드레이크] 해적섬',       time: ['14:00'], days: null,      sound: '드레이크' },
+    { name: '[마이노샤먼] 기란감옥',   time: ['17:10'], days: null,      sound: '마이노샤먼' },
+    { name: '[이프리트] 몽환의섬',     time: ['19:10'], days: null,      sound: '이프리트' },
+    { name: '[데스나이트] 기란감옥',   time: ['20:10'], days: null,      sound: '데스나이트' },
+    { name: '[제로스] 버땅',           time: ['22:10'], days: null,      sound: '제로스' },
+    { name: '[발록] 상아탑',           time: ['23:10'], days: [1,2,3,4,5], sound: '발록' },
+    { name: '[이자벨] 신념3층',        time: ['23:10'], days: [6],       sound: '이자벨' },
+    { name: '[벨리에] 신념2층',        time: ['23:10'], days: [0],       sound: '벨리에' },
+    { name: '[에르자베] 개미동굴',     time: ['00:10'], days: null,      sound: '에르자베' },
+    { name: '[아리모크] 악마왕의영토', time: ['01:10'], days: null,      sound: '아리오크' },
   ],
   hunting: [
-    { name: '몬스터디펜스', time: ['20:25'],          days: null },
-    { name: '배틀존',       time: ['20:45', '22:45'], days: null },
-    { name: '길드워',       time: ['21:30'],          days: null },
-    { name: '탐욕의홀',     time: ['18:00'],          days: null },
-    { name: '지구라트',     time: ['21:00'],          days: null },
+    { name: '몬스터디펜스', time: ['20:25'],          days: null, sound: '몬스터디펜스' },
+    { name: '배틀존',       time: ['20:45', '22:45'], days: null, sound: '배틀존' },
+    { name: '길드워',       time: ['21:30'],          days: null, sound: '길드워' },
+    { name: '탐욕의홀',     time: ['18:00'],          days: null, sound: '탐욕의홀' },
+    { name: '지구라트',     time: ['21:00'],          days: null, sound: '지구라트' },
   ],
 };
 
@@ -41,6 +41,20 @@ let autoWarnFired = {};
 
 const BUFF_DURATION = 60 * 60 * 1000;
 let buffState = {};
+
+// ── MP3 재생 ──────────────────────────────────────────
+function playMP3(filename) {
+  if (!alarmEnabled) return;
+  try {
+    const audio = new Audio('alarm/' + filename + '.mp3');
+    audio.play().catch(() => {});
+  } catch(e) {}
+}
+
+// 초읽기 (5,4,3,2,1) — 해당 초에 해당 파일 재생
+function playCount(sec) {
+  if (sec >= 1 && sec <= 5) playMP3(String(sec));
+}
 
 // ── localStorage ──────────────────────────────────────
 function loadBuffState() {
@@ -97,7 +111,7 @@ function calcRemain(timeStr, validDays) {
   return { totalSec: diffSec, text };
 }
 
-// ── 알람 ──────────────────────────────────────────────
+// ── 깜빡임 ────────────────────────────────────────────
 let flashTimer = null, flashCount = 0;
 function triggerFlash() {
   if (!alarmEnabled || flashTimer) return;
@@ -112,6 +126,7 @@ function triggerFlash() {
   }, 200);
 }
 
+// ── 비프음 ────────────────────────────────────────────
 function playBeep() {
   if (!alarmEnabled) return;
   try {
@@ -131,21 +146,53 @@ function playBeep() {
 
 // ── 보스/컨텐츠 알람 체크 ────────────────────────────
 const WARN_SEC = 3 * 60;
-function checkAlarm(items) {
+
+function checkAlarm(items, type) {
+  // type: 'boss' | 'hunting'
   items.forEach(item => {
     const key = item.name + '_' + item.timeStr;
     const sec = item.remain.totalSec;
+    const snd = item.sound; // MP3 파일명 prefix
+
     if (!alarmFired.has(key)) alarmFired.set(key, new Set());
     const fired = alarmFired.get(key);
+
     if (sec > WARN_SEC) { alarmFired.delete(key); return; }
-    if (!fired.has('warn'))   { fired.add('warn');   triggerFlash(); }
-    if (sec <= 60 && !fired.has('1min'))  { fired.add('1min');  triggerFlash(); }
-    if (sec <= 10 && !fired.has('10sec')) { fired.add('10sec'); triggerFlash(); }
-    if (sec >= 1 && sec <= 5) {
-      const ck = String(sec);
-      if (!fired.has(ck)) { fired.add(ck); playBeep(); }
+
+    // 3분 전
+    if (!fired.has('warn')) {
+      fired.add('warn');
+      triggerFlash();
+      playMP3(snd + '_3분전');
     }
-    if (sec === 0 && !fired.has('spawn')) { fired.add('spawn'); triggerFlash(); }
+
+    // 1분 전
+    if (sec <= 60 && !fired.has('1min')) {
+      fired.add('1min');
+      triggerFlash();
+      playMP3(snd + '_1분전');
+    }
+
+    // 5초 초읽기 (비프음 + MP3)
+    if (sec >= 1 && sec <= 5) {
+      const ck = 'count_' + sec;
+      if (!fired.has(ck)) {
+        fired.add(ck);
+        playBeep();
+        playCount(sec);
+      }
+    }
+
+    // 0초: 등장/시작
+    if (sec === 0 && !fired.has('spawn')) {
+      fired.add('spawn');
+      triggerFlash();
+      if (type === 'boss') {
+        playMP3(snd + '_등장');
+      } else {
+        playMP3(snd + '_시작');
+      }
+    }
   });
 }
 
@@ -153,8 +200,8 @@ function checkAlarm(items) {
 function buildCard(item, index) {
   const sec = item.remain.totalSec;
   let warnCls = '';
-  if      (sec > 0 && sec <= 10)      warnCls = 'warn-3';
-  else if (sec > 0 && sec <= 60)      warnCls = 'warn-2';
+  if      (sec > 0 && sec <= 10)       warnCls = 'warn-3';
+  else if (sec > 0 && sec <= 60)       warnCls = 'warn-2';
   else if (sec > 0 && sec <= WARN_SEC) warnCls = 'warn-1';
   const hlCls = (index === 0 && !warnCls) ? 'highlight' : '';
   return `<div class="item-card ${hlCls} ${warnCls}">
@@ -171,11 +218,10 @@ function buildCard(item, index) {
 
 // ── 개방 게이지 ───────────────────────────────────────
 function renderOpenGauges() {
-  const now = new Date();
+  const now     = new Date();
   const section = document.getElementById('open-section');
-  const el = document.getElementById('open-gauges');
-  let html = '';
-  let hasOpen = false;
+  const el      = document.getElementById('open-gauges');
+  let html = '', hasOpen = false;
 
   openContents.forEach(c => {
     const start = new Date(now); start.setHours(c.startH, c.startM, 0, 0);
@@ -184,13 +230,13 @@ function renderOpenGauges() {
     if (nowMs < start || nowMs >= end) return;
     hasOpen = true;
 
-    const pct = Math.min(100, Math.round(((nowMs - start) / (end - start)) * 100));
+    const pct       = Math.min(100, Math.round(((nowMs - start) / (end - start)) * 100));
     const remainSec = Math.max(0, Math.floor((end - nowMs) / 1000));
-    const rm = Math.floor(remainSec / 60);
-    const rs = remainSec % 60;
-    const endHH = String(end.getHours()).padStart(2,'0');
-    const endMM = String(end.getMinutes()).padStart(2,'0');
-    const barColor = pct >= 80 ? '#ff4757' : pct >= 50 ? '#ffa502' : '#4cd137';
+    const rm        = Math.floor(remainSec / 60);
+    const rs        = remainSec % 60;
+    const endHH     = String(end.getHours()).padStart(2,'0');
+    const endMM     = String(end.getMinutes()).padStart(2,'0');
+    const barColor  = pct >= 80 ? '#ff4757' : pct >= 50 ? '#ffa502' : '#4cd137';
 
     html += `<div class="open-gauge-card">
       <div class="open-gauge-header">
@@ -266,25 +312,29 @@ function finishAuto(manual = false) {
 
 function updateAutoTimer() {
   if (autoState !== 'running') return;
-  const now = new Date();
+  const now       = new Date();
   const remainMs  = autoEndTime - now;
   const remainSec = Math.floor(remainMs / 1000);
 
   if (remainSec <= 0) {
-    if (!autoWarnFired['done']) { autoWarnFired['done'] = true; finishAuto(false); }
+    if (!autoWarnFired['done']) {
+      autoWarnFired['done'] = true;
+      triggerFlash();
+      playMP3('자동사냥_종료');
+      finishAuto(false);
+    }
     return;
   }
 
+  // 게이지
   const pct = Math.min(100, Math.round(((now - autoStartTime) / (autoEndTime - autoStartTime)) * 100));
   const gf = document.getElementById('auto-gauge-fill');
   const gp = document.getElementById('disp-gauge-pct');
   const gr = document.getElementById('disp-gauge-remain');
-  if (gf) {
-    const bc = pct >= 80 ? '#ff4757' : pct >= 50 ? '#ffa502' : '#4cd137';
-    gf.style.width = pct + '%'; gf.style.background = bc;
-  }
+  if (gf) { const bc = pct>=80?'#ff4757':pct>=50?'#ffa502':'#4cd137'; gf.style.width=pct+'%'; gf.style.background=bc; }
   if (gp) gp.textContent = pct + '%';
 
+  // 카운트다운
   const rh = Math.floor(remainSec / 3600);
   const rm = Math.floor((remainSec % 3600) / 60);
   const rs = remainSec % 60;
@@ -295,6 +345,7 @@ function updateAutoTimer() {
   }
   if (gr) { let t=''; if(rh>0)t+=rh+'시간 '; t+=rm+'분 '+String(rs).padStart(2,'0')+'초 남음'; gr.textContent=t; }
 
+  // 경고 배너
   const bannerEl = document.getElementById('auto-warn-banner');
   const warnText = document.getElementById('auto-warn-text');
   if (bannerEl) {
@@ -306,13 +357,15 @@ function updateAutoTimer() {
     }
   }
 
+  // MP3 알람
   const wf = autoWarnFired;
-  if (!wf.warn    && remainSec <= autoWarnMin*60) { wf.warn    = true; triggerFlash(); }
-  if (!wf['1min'] && remainSec <= 60)              { wf['1min'] = true; triggerFlash(); }
-  if (!wf['10sec']&& remainSec <= 10)              { wf['10sec']= true; triggerFlash(); }
+  if (!wf.warn    && remainSec <= autoWarnMin * 60) { wf.warn    = true; triggerFlash(); playMP3('자동사냥_3분전'); }
+  if (!wf['1min'] && remainSec <= 60)                { wf['1min'] = true; triggerFlash(); playMP3('자동사냥_1분전'); }
+
+  // 5초 초읽기
   if (remainSec >= 1 && remainSec <= 5) {
-    const ck = 'c'+remainSec;
-    if (!wf[ck]) { wf[ck]=true; playBeep(); }
+    const ck = 'ac' + remainSec;
+    if (!wf[ck]) { wf[ck] = true; playBeep(); playCount(remainSec); }
   }
 }
 
@@ -331,25 +384,29 @@ document.getElementById('btn-mastery-cancel').addEventListener('click', () => {
 });
 
 function updateBuffs() {
-  const now = Date.now();
-  const m   = buffState.mastery;
+  const now      = Date.now();
+  const m        = buffState.mastery;
   const activeEl = document.getElementById('mastery-active');
   const startBtn = document.getElementById('btn-mastery');
-  const card     = document.getElementById('buff-mastery');
 
   if (m) {
-    const elapsed  = now - m.startMs;
-    const remainMs = BUFF_DURATION - elapsed;
+    const elapsed   = now - m.startMs;
+    const remainMs  = BUFF_DURATION - elapsed;
+
+    // 만료
     if (remainMs <= 0) {
       delete buffState.mastery; saveBuffState();
       triggerFlash();
+      playMP3('숙련도_만료');
       activeEl.style.display = 'none'; startBtn.style.display = 'inline-block';
       return;
     }
+
     const pct       = Math.min(100, Math.round((elapsed / BUFF_DURATION) * 100));
     const remainSec = Math.floor(remainMs / 1000);
     const rm = Math.floor(remainSec / 60);
     const rs = remainSec % 60;
+
     const ge = document.getElementById('mastery-gauge');
     const re = document.getElementById('mastery-remain');
     const pe = document.getElementById('mastery-pct');
@@ -358,8 +415,15 @@ function updateBuffs() {
     if (pe) pe.textContent = pct + '%';
     activeEl.style.display = 'block'; startBtn.style.display = 'none';
 
-    if (!m.warned10 && remainSec <= 600) { m.warned10 = true; saveBuffState(); triggerFlash(); }
-    if (!m.warned1  && remainSec <= 60)  { m.warned1  = true; saveBuffState(); triggerFlash(); }
+    // MP3 알람
+    if (!m.warned3 && remainSec <= 180) { m.warned3 = true; saveBuffState(); triggerFlash(); playMP3('숙련도_3분전'); }
+    if (!m.warned1 && remainSec <= 60)  { m.warned1 = true; saveBuffState(); triggerFlash(); playMP3('숙련도_1분전'); }
+
+    // 5초 초읽기
+    if (remainSec >= 1 && remainSec <= 5) {
+      const ck = 'bc' + remainSec;
+      if (!m[ck]) { m[ck] = true; saveBuffState(); playBeep(); playCount(remainSec); }
+    }
   } else {
     activeEl.style.display = 'none'; startBtn.style.display = 'inline-block';
   }
@@ -379,10 +443,10 @@ function update() {
   const bosses = [];
   schedule.boss.forEach(b => b.time.forEach(t => {
     const r = calcRemain(t, b.days);
-    if (r) bosses.push({ name: b.name, timeStr: t, remain: r });
+    if (r) bosses.push({ name: b.name, timeStr: t, remain: r, sound: b.sound });
   }));
   bosses.sort((a,b) => a.remain.totalSec - b.remain.totalSec);
-  checkAlarm(bosses);
+  checkAlarm(bosses, 'boss');
   const bossEl = document.getElementById('boss-list');
   bossEl.innerHTML = bosses.length === 0
     ? '<div class="empty-msg">오늘 남은 보스가 없습니다 😴</div>'
@@ -392,22 +456,17 @@ function update() {
   const huntings = [];
   schedule.hunting.forEach(h => h.time.forEach(t => {
     const r = calcRemain(t, h.days);
-    if (r) huntings.push({ name: h.name, timeStr: t, remain: r });
+    if (r) huntings.push({ name: h.name, timeStr: t, remain: r, sound: h.sound });
   }));
   huntings.sort((a,b) => a.remain.totalSec - b.remain.totalSec);
-  checkAlarm(huntings);
+  checkAlarm(huntings, 'hunting');
   const huntEl = document.getElementById('hunting-list');
   huntEl.innerHTML = huntings.length === 0
     ? '<div class="empty-msg">오늘 남은 컨텐츠가 없습니다 😴</div>'
     : huntings.slice(0, 2).map((item,i) => buildCard(item,i)).join('');
 
-  // 개방 게이지
   renderOpenGauges();
-
-  // 자동사냥
   updateAutoTimer();
-
-  // 버프
   updateBuffs();
 }
 
