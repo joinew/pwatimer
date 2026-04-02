@@ -29,6 +29,19 @@ const openContents = [
   { name: '지구라트', startH: 21, startM: 0, endH: 24, endM: 0 },
 ];
 
+// ── 길드워 멘트 시각 ──────────────────────────────────
+const GUILDWAR_MENTS = [
+  { h: 21, m: 31, s: 40 },
+  { h: 21, m: 33, s: 10 },
+  { h: 21, m: 34, s: 40 },
+  { h: 21, m: 36, s: 12 },
+  { h: 21, m: 37, s: 43 },
+  { h: 21, m: 39, s: 14 },
+  { h: 21, m: 40, s: 45 },
+  { h: 21, m: 42, s: 15 },
+];
+const guildwarFired = new Set();
+
 // ── 상태 ──────────────────────────────────────────────
 let alarmEnabled = true;
 const alarmFired = new Map();
@@ -223,6 +236,7 @@ function renderOpenGauges() {
   const el      = document.getElementById('open-gauges');
   let html = '', hasOpen = false;
 
+  // 탐욕의홀, 지구라트 게이지
   openContents.forEach(c => {
     const start = new Date(now); start.setHours(c.startH, c.startM, 0, 0);
     const end   = new Date(now); end.setHours(c.endH, c.endM, 0, 0);
@@ -250,8 +264,91 @@ function renderOpenGauges() {
     </div>`;
   });
 
+  // 길드워 게이지 (21:30 ~ 21:42:15)
+  const gwStart = new Date(now); gwStart.setHours(21, 30, 0, 0);
+  const gwEnd   = new Date(now); gwEnd.setHours(21, 42, 15, 0);
+  const nowMs   = now.getTime();
+
+  if (nowMs >= gwStart && nowMs < gwEnd) {
+    hasOpen = true;
+    const totalMs   = gwEnd - gwStart;
+    const elapsedMs = nowMs - gwStart;
+    const pct       = Math.min(100, Math.round((elapsedMs / totalMs) * 100));
+    const remainSec = Math.max(0, Math.floor((gwEnd - nowMs) / 1000));
+    const rm        = Math.floor(remainSec / 60);
+    const rs        = remainSec % 60;
+    const barColor  = pct >= 80 ? '#ff4757' : pct >= 50 ? '#ffa502' : '#4cd137';
+
+    // 다음 멘트까지 남은 시간 계산
+    let nextMentText = '';
+    const nowTotalSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    let nearestDiff = Infinity;
+    GUILDWAR_MENTS.forEach(t => {
+      const mentSec = t.h * 3600 + t.m * 60 + t.s;
+      const diff = mentSec - nowTotalSec;
+      if (diff > 0 && diff < nearestDiff) nearestDiff = diff;
+    });
+    if (nearestDiff !== Infinity && nearestDiff <= 600) {
+      const nm = Math.floor(nearestDiff / 60);
+      const ns = nearestDiff % 60;
+      nextMentText = ` · 다음 멘트 ${nm > 0 ? nm + '분 ' : ''}${String(ns).padStart(2,'0')}초 전`;
+    }
+
+    html += `<div class="open-gauge-card guildwar-card">
+      <div class="open-gauge-header">
+        <span class="open-gauge-name">⚔️ 길드워 진행 중</span>
+        <span class="open-gauge-end">21:42:15 종료</span>
+      </div>
+      <div class="gauge-bg">
+        <div class="gauge-fill" style="width:${pct}%;background:${barColor};transition:width 1s linear"></div>
+      </div>
+      <div class="open-gauge-remain">${pct}% 진행 · ${rm}분 ${String(rs).padStart(2,'0')}초 남음${nextMentText}</div>
+    </div>`;
+  }
+
   el.innerHTML = html;
   section.style.display = hasOpen ? 'block' : 'none';
+}
+
+// ── 길드워 멘트 알람 체크 ─────────────────────────────
+function checkGuildwarMents() {
+  const now = new Date();
+  const nowTotalSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  // 길드워 시간(21:30~21:42:15) 외에는 실행 안 함
+  const gwStartSec = 21 * 3600 + 30 * 60;
+  const gwEndSec   = 21 * 3600 + 42 * 60 + 15;
+  if (nowTotalSec < gwStartSec || nowTotalSec > gwEndSec) {
+    // 길드워 시간 지나면 fired 초기화 (다음날 대비)
+    if (nowTotalSec > gwEndSec + 60) guildwarFired.clear();
+    return;
+  }
+
+  GUILDWAR_MENTS.forEach((t, idx) => {
+    const mentSec  = t.h * 3600 + t.m * 60 + t.s;
+    const diff     = mentSec - nowTotalSec; // 양수: 아직 안 됨, 음수: 지남
+
+    // 5초 전 초읽기
+    if (diff >= 1 && diff <= 5) {
+      const ck = 'gw_count_' + idx + '_' + diff;
+      if (!guildwarFired.has(ck)) {
+        guildwarFired.add(ck);
+        playBeep();
+        playCount(diff);
+      }
+    }
+
+    // 정각 (0초 ± 0.5초 범위)
+    if (diff >= -1 && diff <= 0) {
+      const ck = 'gw_ment_' + idx;
+      if (!guildwarFired.has(ck)) {
+        guildwarFired.add(ck);
+        triggerFlash();
+        playBeep();
+        playMP3('15초멘트');
+      }
+    }
+  });
 }
 
 // ── 자동사냥 ──────────────────────────────────────────
@@ -466,6 +563,7 @@ function update() {
     : huntings.slice(0, 2).map((item,i) => buildCard(item,i)).join('');
 
   renderOpenGauges();
+  checkGuildwarMents();
   updateAutoTimer();
   updateBuffs();
 }

@@ -361,3 +361,10 @@ html, body {
   transition: opacity 0.1s;
 }
 #flash-overlay.active { opacity: 1; }
+
+/* ── 길드워 게이지 카드 ──────────────────────────────── */
+.guildwar-card {
+  border-color: #fbc531 !important;
+  background: rgba(251,197,49,0.06) !important;
+}
+.guildwar-card .open-gauge-name { color: #fbc531; }
