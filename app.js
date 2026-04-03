@@ -3,17 +3,17 @@
 // ── 시간표 데이터 ──────────────────────────────────────
 const schedule = {
   boss: [
-    { name: '[파우스트] 기란감옥',     time: ['10:00'], days: null,      sound: '파우스트' },
-    { name: '[드레이크] 해적섬',       time: ['14:00'], days: null,      sound: '드레이크' },
-    { name: '[마이노샤먼] 기란감옥',   time: ['17:10'], days: null,      sound: '마이노샤먼' },
-    { name: '[이프리트] 몽환의섬',     time: ['19:10'], days: null,      sound: '이프리트' },
-    { name: '[데스나이트] 기란감옥',   time: ['20:10'], days: null,      sound: '데스나이트' },
-    { name: '[제로스] 버땅',           time: ['22:10'], days: null,      sound: '제로스' },
-    { name: '[발록] 상아탑',           time: ['23:10'], days: [1,2,3,4,5], sound: '발록' },
-    { name: '[이자벨] 신념3층',        time: ['23:10'], days: [6],       sound: '이자벨' },
-    { name: '[벨리에] 신념2층',        time: ['23:10'], days: [0],       sound: '벨리에' },
-    { name: '[에르자베] 개미동굴',     time: ['00:10'], days: null,      sound: '에르자베' },
-    { name: '[아리모크] 악마왕의영토', time: ['01:10'], days: null,      sound: '아리오크' },
+    { name: '[아리오크] 악마왕의영토', time: ['00:00'], days: null,        sound: '아리오크' },
+    { name: '[파우스트] 기란감옥',     time: ['09:00'], days: null,        sound: '파우스트' },
+    { name: '[드레이크] 해적섬',       time: ['11:00'], days: null,        sound: '드레이크' },
+    { name: '[마이노샤먼] 기란감옥',   time: ['13:00'], days: null,        sound: '마이노샤먼' },
+    { name: '[이프리트] 몽환의섬',     time: ['15:00'], days: null,        sound: '이프리트' },
+    { name: '[데스나이트] 기란감옥',   time: ['17:00'], days: null,        sound: '데스나이트' },
+    { name: '[제로스] 버땅',           time: ['19:00'], days: null,        sound: '제로스' },
+    { name: '[발록] 상아탑',           time: ['20:00'], days: [1,2,3,4,5], sound: '발록' },
+    { name: '[이자벨] 신념3층',        time: ['20:00'], days: [6],         sound: '이자벨' },
+    { name: '[벨리에] 신념2층',        time: ['20:00'], days: [0],         sound: '벨리에' },
+    { name: '[에르자베] 개미동굴',     time: ['22:00'], days: null,        sound: '에르자베' },
   ],
   hunting: [
     { name: '몬스터디펜스', time: ['20:25'],          days: null, sound: '몬스터디펜스' },
